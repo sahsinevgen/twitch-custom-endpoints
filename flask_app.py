@@ -9,9 +9,9 @@ def lati_command():
     user = request.args.get('user', 'Аноним')
     nick = user.lower().strip()
 
-    # Жесткая проверка: если это не Лати, возвращаем пустоту
+    # Жесткая проверка: если это не Лати, возвращаем сообщение
     if nick != 'laatteeeee_':
-        return ""
+        return "Ты не Лати -_-"
 
     # Базовые переменные
     real_name = "Лати"
