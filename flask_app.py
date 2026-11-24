@@ -20,13 +20,25 @@ def init_db():
             CREATE TABLE IF NOT EXISTS streak_state (
                 id INTEGER PRIMARY KEY CHECK (id = 1),
                 current_streak INTEGER NOT NULL DEFAULT 0,
-                patch_pb INTEGER NOT NULL DEFAULT 0,
-                previous_pb INTEGER NOT NULL DEFAULT 0
+                patch_pb INTEGER NOT NOT NULL DEFAULT 0,
+                previous_pb INTEGER NOT NULL DEFAULT 0,
+                last_title TEXT NOT NULL DEFAULT 'Dread'
             )
         """)
+
+        columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(streak_state)")
+        }
+        if "last_title" not in columns:
+            connection.execute(
+                "ALTER TABLE streak_state ADD COLUMN last_title TEXT NOT NULL DEFAULT 'Dread'"
+            )
+
         connection.execute(
             "INSERT OR IGNORE INTO streak_state "
-            "(id, current_streak, patch_pb, previous_pb) VALUES (1, 0, 0, 0)"
+            "(id, current_streak, patch_pb, previous_pb, last_title) "
+            "VALUES (1, 0, 0, 0, 'Dread')"
         )
 
 
@@ -62,22 +74,27 @@ def streak_command():
     if streak < 0:
         return "Стрик не может быть отрицательным", 400
 
-    title = request.args.get("title", "Dread").strip() or "Dread"
-
     with get_db() as connection:
         row = connection.execute(
-            "SELECT patch_pb, previous_pb FROM streak_state WHERE id = 1"
+            "SELECT patch_pb, previous_pb, last_title "
+            "FROM streak_state WHERE id = 1"
         ).fetchone()
+
+        title = request.args.get("title")
+        if title is None:
+            title = row["last_title"]
+        else:
+            title = title.strip() or row["last_title"]
 
         patch_pb = max(row["patch_pb"], streak)
 
         connection.execute(
             """
             UPDATE streak_state
-            SET current_streak = ?, patch_pb = ?
+            SET current_streak = ?, patch_pb = ?, last_title = ?
             WHERE id = 1
             """,
-            (streak, patch_pb),
+            (streak, patch_pb, title),
         )
 
         previous_pb = row["previous_pb"]
