@@ -1,4 +1,5 @@
 import os
+import re
 import sqlite3
 
 from flask import Flask, abort, request
@@ -64,15 +65,15 @@ def lati_command():
 
 @app.route("/str")
 def streak_command():
-    streak_value = request.args.get("streak", request.args.get("str"))
+    # Строка из Nightbot: сначала число стрика, затем необязательное название.
+    raw_input = request.args.get("query", request.args.get("str", "")).strip()
+    match = re.fullmatch(r"(\d+)(?:\s+(.*))?", raw_input)
 
-    try:
-        streak = int(streak_value)
-    except (TypeError, ValueError):
-        return "Некорректный стрик", 400
+    if not match:
+        return "Формат: число стрика, затем необязательное название", 400
 
-    if streak < 0:
-        return "Стрик не может быть отрицательным", 400
+    streak = int(match.group(1))
+    supplied_title = (match.group(2) or "").strip()
 
     with get_db() as connection:
         row = connection.execute(
@@ -80,12 +81,7 @@ def streak_command():
             "FROM streak_state WHERE id = 1"
         ).fetchone()
 
-        title = request.args.get("title")
-        if title is None:
-            title = row["last_title"]
-        else:
-            title = title.strip() or row["last_title"]
-
+        title = supplied_title or row["last_title"]
         patch_pb = max(row["patch_pb"], streak)
 
         connection.execute(
