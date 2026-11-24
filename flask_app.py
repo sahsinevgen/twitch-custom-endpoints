@@ -20,7 +20,7 @@ def init_db():
             CREATE TABLE IF NOT EXISTS streak_state (
                 id INTEGER PRIMARY KEY CHECK (id = 1),
                 current_streak INTEGER NOT NULL DEFAULT 0,
-                patch_pb INTEGER NOT NOT NULL DEFAULT 0,
+                patch_pb INTEGER NOT NULL DEFAULT 0,
                 previous_pb INTEGER NOT NULL DEFAULT 0,
                 last_title TEXT NOT NULL DEFAULT 'Dread'
             )
