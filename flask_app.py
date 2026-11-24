@@ -2,7 +2,7 @@ import os
 import re
 import sqlite3
 
-from flask import Flask, abort, request
+from flask import Flask, request
 
 app = Flask(__name__)
 
@@ -100,12 +100,6 @@ def streak_command():
 
 @app.route("/str/reset", methods=["POST"])
 def reset_streak():
-    reset_key = os.environ.get("STR_RESET_KEY")
-    supplied_key = request.args.get("key", request.headers.get("X-Reset-Key", ""))
-
-    if not reset_key or supplied_key != reset_key:
-        abort(403)
-
     with get_db() as connection:
         row = connection.execute(
             "SELECT patch_pb, previous_pb FROM streak_state WHERE id = 1"
