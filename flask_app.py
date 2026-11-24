@@ -116,3 +116,20 @@ def reset_streak():
         )
 
     return "Текущий патч сброшен"
+
+
+@app.route("/str/hard-reset", methods=["POST"])
+def hard_reset_streak():
+    with get_db() as connection:
+        connection.execute(
+            """
+            UPDATE streak_state
+            SET current_streak = 0,
+                patch_pb = 0,
+                previous_pb = 0,
+                last_title = 'Dread'
+            WHERE id = 1
+            """
+        )
+
+    return "Все данные стрика сброшены"
