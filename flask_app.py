@@ -23,7 +23,7 @@ def init_db():
                 current_streak INTEGER NOT NULL DEFAULT 0,
                 patch_pb INTEGER NOT NULL DEFAULT 0,
                 previous_pb INTEGER NOT NULL DEFAULT 0,
-                last_title TEXT NOT NULL DEFAULT 'Dread'
+                last_title TEXT NOT NULL DEFAULT '-_____-' 
             )
         """)
 
@@ -33,13 +33,13 @@ def init_db():
         }
         if "last_title" not in columns:
             connection.execute(
-                "ALTER TABLE streak_state ADD COLUMN last_title TEXT NOT NULL DEFAULT 'Dread'"
+                "ALTER TABLE streak_state ADD COLUMN last_title TEXT NOT NULL DEFAULT '-_____-'"
             )
 
         connection.execute(
             "INSERT OR IGNORE INTO streak_state "
             "(id, current_streak, patch_pb, previous_pb, last_title) "
-            "VALUES (1, 0, 0, 0, 'Dread')"
+            "VALUES (1, 0, 0, 0, '-_____-' )"
         )
 
 
@@ -127,7 +127,7 @@ def hard_reset_streak():
             SET current_streak = 0,
                 patch_pb = 0,
                 previous_pb = 0,
-                last_title = 'Dread'
+                last_title = '-_____-' 
             WHERE id = 1
             """
         )
